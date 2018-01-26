@@ -2,27 +2,23 @@ package com.realstate.realstate.controller;
 
 
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.realstate.realstate.DTO.PropertyDTO;
+import com.realstate.realstate.services.PropertyService;
+
 
 
 
@@ -30,22 +26,30 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/property")	
 public class PropertyController {
 	
-	//@Value("${path}")
-	private static String UPLOADED_FOLDER="C://serverfiles//";
+	@Autowired
+	private PropertyService propertyService;
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
-    public String addItem(@RequestBody MultipartFile file) {
+    public String addProperty(@RequestParam("image") MultipartFile image,PropertyDTO property) {
+		property.setImage(image);
+		//System.out.println(property);
 		
-		  try {
-	            // Get the file and save it somewhere
-	            byte[] bytes = file.getBytes();
-	            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-	            Files.write(path, bytes);
-  
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-
+		return propertyService.saveProperty(property);	
+       
+    }
+	
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+    public String add(@RequestBody String property) {
+		
+		 //propertyService.saveProperty(property);
+	        return "File Saved";	
+       
+    }
+	
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
+    public String getprop() {
+		
+		 //propertyService.saveProperty(property);
 	        return "File Saved";	
        
     }
@@ -55,16 +59,7 @@ public class PropertyController {
 	public ResponseEntity<InputStreamResource> getImage(@PathVariable("filename") String filename)
 	        throws IOException {
 		
-		String filepath = UPLOADED_FOLDER+filename;
-		 File f = new File(filepath);
-         Resource file = new UrlResource(f.toURI());
-		
-         return ResponseEntity
-                 .ok()
-                 .contentLength(file.contentLength())
-                 .contentType(
-                         MediaType.parseMediaType("image/JPG"))
-                 .body(new InputStreamResource(file.getInputStream()));
+			return propertyService.getPropertyImage(filename);
 	}
 	
 	
