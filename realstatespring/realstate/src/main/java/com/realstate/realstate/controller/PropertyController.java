@@ -3,6 +3,7 @@ package com.realstate.realstate.controller;
 
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.realstate.realstate.DTO.PropertyDTO;
+import com.realstate.realstate.entity.Property;
 import com.realstate.realstate.services.PropertyService;
 
 
@@ -31,34 +33,41 @@ public class PropertyController {
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
     public String addProperty(@RequestParam("image") MultipartFile image,PropertyDTO property) {
-		property.setImage(image);
-		//System.out.println(property);
-		
-		return propertyService.saveProperty(property);	
-       
+		property.setImage(image);		
+		return propertyService.saveProperty(property);	       
     }
 	
-	@RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String add(@RequestBody String property) {
-		
-		 //propertyService.saveProperty(property);
-	        return "File Saved";	
-       
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+	 public String updateProperty(@RequestParam("image") MultipartFile image,PropertyDTO property,@PathVariable Long id) {
+		property.setImage(image);		
+		return propertyService.updateProperty(property,id);	       
     }
 	
-	@RequestMapping(value = "/get", method = RequestMethod.GET)
-    public String getprop() {
-		
-		 //propertyService.saveProperty(property);
-	        return "File Saved";	
-       
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+    public List<Property> getAllprop() {		
+		 return propertyService.getALL();  
+    }
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public Property getById(@PathVariable Long id) {		
+		 return propertyService.getById(id);  
+    }
+	
+//	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+//    public String getById(@PathVariable Long id) {		
+//		 Property p = propertyService.getById(id);
+//		 return "hello"+p.getName();
+//    }
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public String deleteById(@PathVariable Long id) {		
+		 return propertyService.deleteProperty(id);  
     }
 	
 	
-	@RequestMapping(value = "/{filename:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/image/{filename:.+}", method = RequestMethod.GET)
 	public ResponseEntity<InputStreamResource> getImage(@PathVariable("filename") String filename)
-	        throws IOException {
-		
+	        throws IOException {		
 			return propertyService.getPropertyImage(filename);
 	}
 	

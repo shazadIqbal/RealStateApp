@@ -1,62 +1,176 @@
 package com.realstate.realstate.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import javax.persistence.*;
 
-@Entity()
-@Table(name = "property")
-public class Property {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Integer id;
-    private String name;
-    private String address;
-    private String details;
-    private String image;
-    
-    
-    
-	public Property(String name, String address, String details, String image) {		
-		this.name = name;
-		this.address = address;
-		this.details = details;
-		this.image = image;
-	}
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
+/**
+ * The persistent class for the property database table.
+ * 
+ */
+@Entity
+@NamedQuery(name="Property.findAll", query="SELECT p FROM Property p")
+public class Property implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private Long id;
+	private String area;
+	private String city;
+	private String country;
+	private String description;
+	private String image;
+	private String location;
+	private String name;
+	private String nearby;
+	private Double noOfRooms;
+	private String price;
+	private String type;
 	
-	public Integer getId() {
-		return id;
+	private PropertyOwner propertyOwner;
+
+	public Property() {
 	}
-	public void setId(Integer id) {
+
+	
+	
+	public Property(String area, String city, String country, String description, String image, String location,
+			String name, String nearby, Double noOfRooms, String price, String type) {
+		
+		this.area = area;
+		this.city = city;
+		this.country = country;
+		this.description = description;
+		this.image = image;
+		this.location = location;
+		this.name = name;
+		this.nearby = nearby;
+		this.noOfRooms = noOfRooms;
+		this.price = price;
+		this.type = type;
+	}
+
+
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getName() {
-		return name;
+
+
+	public String getArea() {
+		return this.area;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+	public void setArea(String area) {
+		this.area = area;
 	}
-	public String getAddress() {
-		return address;
+
+
+	public String getCity() {
+		return this.city;
 	}
-	public void setAddress(String address) {
-		this.address = address;
+
+	public void setCity(String city) {
+		this.city = city;
 	}
-	public String getDetails() {
-		return details;
+
+
+	public String getCountry() {
+		return this.country;
 	}
-	public void setDetails(String details) {
-		this.details = details;
+
+	public void setCountry(String country) {
+		this.country = country;
 	}
+
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+
 	public String getImage() {
-		return image;
+		return this.image;
 	}
+
 	public void setImage(String image) {
 		this.image = image;
 	}
 
-    
+
+	public String getLocation() {
+		return this.location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public String getNearby() {
+		return this.nearby;
+	}
+
+	public void setNearby(String nearby) {
+		this.nearby = nearby;
+	}
+
+
+	@Column(name="no_of_rooms")
+	public Double getNoOfRooms() {
+		return this.noOfRooms;
+	}
+
+	public void setNoOfRooms(Double noOfRooms) {
+		this.noOfRooms = noOfRooms;
+	}
+
+
+	public String getPrice() {
+		return this.price;
+	}
+
+	public void setPrice(String price) {
+		this.price = price;
+	}
+
+
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+
+	@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "property_owner_id")
+	public PropertyOwner getPropertyOwner() {
+		return this.propertyOwner;
+	}
+
+	public void setPropertyOwner(PropertyOwner propertyOwner) {
+		this.propertyOwner = propertyOwner;
+	}
 
 }

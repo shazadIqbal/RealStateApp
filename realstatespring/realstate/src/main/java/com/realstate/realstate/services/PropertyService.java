@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -15,8 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.realstate.realstate.DAO.PropertyRepository;
+
 import com.realstate.realstate.DTO.PropertyDTO;
+import com.realstate.realstate.DTO.PropertyOwnerDetailsDTO;
 import com.realstate.realstate.entity.Property;
+import com.realstate.realstate.entity.PropertyOwner;
 
 
 @Service
@@ -25,18 +30,18 @@ public class PropertyService {
 	@Autowired
 	private PropertyRepository propertyRepositry;
 	
-	//@Value("${path}")
 		private static String UPLOADED_FOLDER="C://serverfiles//";
 		
-		private static String IMAGE_URL="http:/localhost:8080/property/";
+		private static String IMAGE_URL="http://localhost:8080/property/image/";
 		
 		
 		public String saveProperty(PropertyDTO property){
 			
 			if(savePropertyImage(property.getImage())){
-				String imageURL = IMAGE_URL+property.getImage().getOriginalFilename();
-				Property p = new Property(property.getName(), property.getAddress(), property.getDetails(), imageURL);
-				propertyRepositry.save(p);			
+				String imageURL = IMAGE_URL+property.getImage().getOriginalFilename();						
+				Property pro = populateProperty(property, imageURL);
+				propertyRepositry.save(pro);	
+						
 				
 			}else{
 				return "There is some problem Property NOT Saved!!";	
@@ -45,9 +50,28 @@ public class PropertyService {
 		        return "Property Successfully Saved";	
 		}
 		
+		public String updateProperty(PropertyDTO property,Long id){
+			
+			if(savePropertyImage(property.getImage())){
+				String imageURL = IMAGE_URL+property.getImage().getOriginalFilename();				
+				Property pro = populateProperty(property, imageURL);
+				propertyRepositry.save(pro);		
+				
+			}else{
+				return "There is some problem Property NOT update!!";	
+			}
+
+		        return "Property Successfully update";	
+		}
+		
 		public Boolean savePropertyImage(MultipartFile file){
 			 try {			 
 		            // Get the file and save it somewhere
+				 File dir = new File(UPLOADED_FOLDER);
+				 if(!dir.exists()){
+					dir.mkdirs(); 
+				 }
+				 
 		            byte[] bytes = file.getBytes();
 		            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
 		            Files.write(path, bytes);
@@ -72,4 +96,49 @@ public class PropertyService {
 		                 .body(new InputStreamResource(file.getInputStream()));
 		         
 		}
+		
+		public List<Property> getALL(){					
+			return propertyRepositry.findAll();
+		}
+		
+		public Property getById(Long id){					
+			return propertyRepositry.findOne(id);
+		}
+		
+		public String deleteProperty(Long id){
+			
+			if (deleteImage(id)) {
+				propertyRepositry.delete(id);
+				return "delete successfully";
+			}
+			
+			
+			return "unsuccessful delete operation somthing happen wrong";
+		}
+		
+		public boolean deleteImage(Long id){
+			Property prop = getById(id);
+			String imageName = prop.getImage().substring(prop.getImage().lastIndexOf('/')+1);
+			System.out.println(imageName);
+			
+			 File file = new File(UPLOADED_FOLDER+imageName);
+			 if(file.delete()) {
+		         return true;
+		     }
+		       
+			 return false;
+		}
+				
+		private Property populateProperty(PropertyDTO property,String imageURL) {
+			
+			Property p = new Property(property.getArea(), property.getCity(), property.getCountry(), property.getDescription(),
+					imageURL, property.getLocation(),property.getName(),property.getNearBy(),property.getNoOfRooms(),property.getPrice(),property.getType());
+			PropertyOwner propertyOwner = new PropertyOwner(property.getPropertyOwnerDetails().getPropertyAddress(), property.getPropertyOwnerDetails().getOwnerContact(),property.getPropertyOwnerDetails().getOwnerDemand(),property.getPropertyOwnerDetails().getOwnerName());
+			
+			p.setPropertyOwner(propertyOwner);
+			propertyOwner.setProperty(p);
+			
+			return p;
+		}
+		
 }
