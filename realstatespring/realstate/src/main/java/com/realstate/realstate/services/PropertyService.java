@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -16,10 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.realstate.realstate.DAO.PropertyRepository;
 
+import com.realstate.realstate.DAO.PropertyOwnerRepository;
+import com.realstate.realstate.DAO.PropertyRepository;
 import com.realstate.realstate.DTO.PropertyDTO;
-import com.realstate.realstate.DTO.PropertyOwnerDetailsDTO;
 import com.realstate.realstate.entity.Property;
 import com.realstate.realstate.entity.PropertyOwner;
 
@@ -29,6 +30,7 @@ public class PropertyService {
 
 	@Autowired
 	private PropertyRepository propertyRepositry;
+	
 	
 		private static String UPLOADED_FOLDER="C://serverfiles//";
 		
@@ -54,7 +56,8 @@ public class PropertyService {
 			
 			if(savePropertyImage(property.getImage())){
 				String imageURL = IMAGE_URL+property.getImage().getOriginalFilename();				
-				Property pro = populateProperty(property, imageURL);
+				Property pro = updatePropertyRecord(property, imageURL,id);
+				
 				propertyRepositry.save(pro);		
 				
 			}else{
@@ -101,6 +104,10 @@ public class PropertyService {
 			return propertyRepositry.findAll();
 		}
 		
+		public List<Property> getALLUI(){					
+			return propertyRepositry.getAllUIProperty();
+		}
+		
 		public Property getById(Long id){					
 			return propertyRepositry.findOne(id);
 		}
@@ -133,6 +140,8 @@ public class PropertyService {
 			
 			Property p = new Property(property.getArea(), property.getCity(), property.getCountry(), property.getDescription(),
 					imageURL, property.getLocation(),property.getName(),property.getNearBy(),property.getNoOfRooms(),property.getPrice(),property.getType());
+			
+			
 			PropertyOwner propertyOwner = new PropertyOwner(property.getPropertyOwnerDetails().getPropertyAddress(), property.getPropertyOwnerDetails().getOwnerContact(),property.getPropertyOwnerDetails().getOwnerDemand(),property.getPropertyOwnerDetails().getOwnerName());
 			
 			p.setPropertyOwner(propertyOwner);
@@ -141,4 +150,38 @@ public class PropertyService {
 			return p;
 		}
 		
+		private Property updatePropertyRecord(PropertyDTO property,String imageURL,Long id) {
+			
+			Property p = new Property(property.getArea(), property.getCity(), property.getCountry(), property.getDescription(),
+					imageURL, property.getLocation(),property.getName(),property.getNearBy(),property.getNoOfRooms(),property.getPrice(),property.getType());
+			p.setId(id);
+			
+			Property po = getById(id);
+			
+			PropertyOwner propertyOwner = new PropertyOwner(property.getPropertyOwnerDetails().getPropertyAddress(), property.getPropertyOwnerDetails().getOwnerContact(),property.getPropertyOwnerDetails().getOwnerDemand(),property.getPropertyOwnerDetails().getOwnerName());
+			propertyOwner.setPropertyOwnerId(po.getPropertyOwner().getPropertyOwnerId());
+			
+			p.setPropertyOwner(propertyOwner);
+			propertyOwner.setProperty(p);
+			
+			return p;
+		}
+		
+		
+		public List<Property> searchProperty(String keyword,String city,String type){
+			
+			List<Property> list =  propertyRepositry.findByNameContaining(keyword);
+			if(city != "all" && type!="all") {
+				return list.stream().filter(p->p.getCity().equalsIgnoreCase(city) && p.getType().equalsIgnoreCase(type) ).collect(Collectors.toList());
+			
+			}else if(city!="all") {
+				return list.stream().filter(p->p.getCity().equalsIgnoreCase(city)).collect(Collectors.toList());
+					
+			}else if(type!="all") {
+				return list.stream().filter(p->p.getType().equalsIgnoreCase(type) ).collect(Collectors.toList());
+			}
+			
+			return list;
+			
+		}
 }

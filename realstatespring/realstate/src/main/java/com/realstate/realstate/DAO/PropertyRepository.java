@@ -15,7 +15,11 @@ import com.realstate.realstate.entity.Property;
 public interface PropertyRepository extends JpaRepository<Property, Long>{
 
 	
-//	 @Query("SELECT new p FROM Person p WHERE LOWER(p.lastName) = LOWER(:lastName)")
-//	    public List<PropertyDTO> getAllProperty();
+	 @Query("SELECT new com.realstate.realstate.entity.Property(p.id,p.area,p.city,p.country,p.description,p.image,p.location,p.name,p.nearby,p.noOfRooms,p.price,p.type) FROM Property p")
+	    public List<Property> getAllUIProperty();
+	 
+
+	 public List<Property> findByNameContaining(String name);
+	
 	
 }

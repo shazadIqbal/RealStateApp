@@ -43,9 +43,14 @@ public class PropertyController {
 		return propertyService.updateProperty(property,id);	       
     }
 	
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "admin/records/", method = RequestMethod.GET)
     public List<Property> getAllprop() {		
 		 return propertyService.getALL();  
+    }
+	
+	@RequestMapping(value = "ui/", method = RequestMethod.GET)
+    public List<Property> getAllUIprop() {		
+		 return propertyService.getALLUI();  
     }
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -53,11 +58,6 @@ public class PropertyController {
 		 return propertyService.getById(id);  
     }
 	
-//	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-//    public String getById(@PathVariable Long id) {		
-//		 Property p = propertyService.getById(id);
-//		 return "hello"+p.getName();
-//    }
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public String deleteById(@PathVariable Long id) {		
@@ -70,6 +70,15 @@ public class PropertyController {
 	        throws IOException {		
 			return propertyService.getPropertyImage(filename);
 	}
+	
+	@RequestMapping(value = "/search", method = RequestMethod.GET)
+    public List<Property> searchProperty(@RequestParam(name = "keyword", required=true) String keyword,
+    		@RequestParam(name = "city", defaultValue = "all") String city,
+    		@RequestParam(name = "type", defaultValue = "all") String type) {
+		
+		return propertyService.searchProperty(keyword, city, type);
+		
+    }
 	
 	
 }

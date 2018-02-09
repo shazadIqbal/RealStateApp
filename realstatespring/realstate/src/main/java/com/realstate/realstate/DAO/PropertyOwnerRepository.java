@@ -7,4 +7,5 @@ import com.realstate.realstate.entity.PropertyOwner;
 @Repository
 public interface PropertyOwnerRepository extends JpaRepository<PropertyOwner, Long>{
 
+	
 }

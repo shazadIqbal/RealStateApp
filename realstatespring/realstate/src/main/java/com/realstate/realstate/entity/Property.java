@@ -49,6 +49,23 @@ public class Property implements Serializable {
 		this.price = price;
 		this.type = type;
 	}
+	
+	public Property(Long id,String area, String city, String country, String description, String image, String location,
+			String name, String nearby, Double noOfRooms, String price, String type) {
+		
+		this.id=id;
+		this.area = area;
+		this.city = city;
+		this.country = country;
+		this.description = description;
+		this.image = image;
+		this.location = location;
+		this.name = name;
+		this.nearby = nearby;
+		this.noOfRooms = noOfRooms;
+		this.price = price;
+		this.type = type;
+	}
 
 
 
